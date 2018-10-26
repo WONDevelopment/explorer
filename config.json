@@ -1,0 +1,33 @@
+{
+    "nodeAddr":     "http://localhost:8853",
+    "startBlock":   0,
+    "quiet":        true,
+    "syncAll":      true,
+    "patch":        true,
+    "patchBlocks":  100,
+    "bulkSize":     1000,
+    "settings": {
+        "symbol": "WON",
+        "name": "Won",
+        "title": "Won Block Explorer",
+        "author": "World open network",
+        "contact": "mailto:wonexplorer@worldopennetwork.net",
+        "about": "This is an open source Blockchain Explorer. Basic off ethereumproject/explorer.",
+        "rss": "https://worldopennetwork.net",
+        "reddit": "https://www.reddit.com/r/WOB",
+        "twitter": "https://twitter.com/won",
+        "linkedin": "https://www.linkedin.com/company/worldopennetwork",
+        "github": "https://github.com/WONDevelopment",
+        "logo": "/img/explorer-logo.png",
+        "customCss": "green-haze.min.css",
+        "copyright": "2018 World Open Network, Inc.",
+        "useEthFiat": false,
+        "poweredbyCustom": false,
+        "poweredbyEtcImage": "/img/powered-by-etcexplorer-w.png",
+        "poweredbyWon": true,
+        "provider": {
+            "0xdf7d7e053933b5cc24372f878c90e62dadad5d42": "EtherMine",
+            "0x1c0fa194a9d3b44313dcd849f3c6be6ad270a0a4": "MiningPoolHub"
+         }
+    }
+}
