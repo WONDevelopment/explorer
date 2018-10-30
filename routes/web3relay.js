@@ -11,6 +11,7 @@ var web3;
 
 var BigNumber = require('bignumber.js');
 var wonUnits = require(__lib + "wonUnits.js");
+var getSigner = require(__lib + "blockMiner.js");
 
 var getLatestBlocks = require('./index').getLatestBlocks;
 var filterBlocks = require('./filters').filterBlocks;
@@ -173,6 +174,7 @@ exports.data = function(req, res){
         console.error("BlockWeb3 error :" + err)
         res.write(JSON.stringify({"error": true}));
       } else {
+        block.miner = getSigner(block);
         res.write(JSON.stringify(filterBlocks(block)));
       }
       res.end();
