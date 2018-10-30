@@ -6,7 +6,7 @@ var filters = require('./filters');
 var https = require('https');
 var async = require('async');
 
-var etherUnits = require(__lib + "etherUnits.js")
+var wonUnits = require(__lib + "wonUnits.js");
 
 var config = {};
 try {
@@ -72,10 +72,10 @@ var getMinerStats = function(req, res) {
           console.error(err);
           res.status(500).send();
         } else {
-          if (config.settings.miners) {
+          if (config.settings.signers) {
             result.forEach(function(m) {
-              if (config.settings.miners[m._id]) {
-                m._id = config.settings.miners[m._id];
+              if (config.settings.signers[m._id]) {
+                m._id = config.settings.signers[m._id];
               }
             });
           }

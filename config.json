@@ -1,11 +1,11 @@
 {
-    "nodeAddr":     "http://localhost:8853",
+    "nodeAddr":     "https://bc.1won.com",
     "startBlock":   0,
     "quiet":        true,
     "syncAll":      true,
     "patch":        true,
-    "patchBlocks":  100,
-    "bulkSize":     1000,
+    "patchBlocks":  200,
+    "bulkSize":     200,
     "settings": {
         "symbol": "WON",
         "name": "Won",
@@ -25,9 +25,10 @@
         "poweredbyCustom": false,
         "poweredbyEtcImage": "/img/powered-by-etcexplorer-w.png",
         "poweredbyWon": true,
-        "provider": {
-            "0xdf7d7e053933b5cc24372f878c90e62dadad5d42": "EtherMine",
-            "0x1c0fa194a9d3b44313dcd849f3c6be6ad270a0a4": "MiningPoolHub"
+        "signers": {
+            "0x093274140f20126fb3a8aa0b776a0a344b473c16": "won.signer1",
+            "0x236450bed191debe89aaf081f5f5903f36220377": "won.signer2",
+            "0x4c0104ff04667e5c7f73dcd4e07f58da364a6144": "won.signer3"
          }
     }
 }

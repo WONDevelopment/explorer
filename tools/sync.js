@@ -5,7 +5,7 @@ This file will start syncing the blockchain from the node address you provide in
 Please read the README in the root directory that explains the parameters of this code
 */
 require( '../db.js' );
-var etherUnits = require("../lib/wonUnits.js");
+var wonUnits = require("../lib/wonUnits.js");
 var BigNumber = require('bignumber.js');
 const ethUtils = require('ethereumjs-util');
 const BlockHeader = require('../lib/header.js');
@@ -145,7 +145,7 @@ var writeTransactionsToDB = function(config, blockData, flush) {
     for (d in blockData.transactions) {
       var txData = blockData.transactions[d];
       txData.timestamp = blockData.timestamp;
-      txData.value = etherUnits.toEther(new BigNumber(txData.value), 'wei');
+      txData.value = wonUnits.toWon(new BigNumber(txData.value), 'wei');
       self.bulkOps.push(txData);
     }
     console.log('\t- block #' + blockData.number.toString() + ': ' + blockData.transactions.length.toString() + ' transactions recorded.');

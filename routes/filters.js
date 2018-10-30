@@ -1,5 +1,5 @@
 'use strict';
-var etherUnits = require(__lib + "etherUnits.js")
+var wonUnits = require(__lib + "wonUnits.js")
 var BigNumber = require('bignumber.js');
 var RLP = require('rlp');
 
@@ -8,7 +8,7 @@ var RLP = require('rlp');
 */
 function filterTX(txs, value) {
   return txs.map(function(tx){
-    return [tx.hash, tx.blockNumber, tx.from, tx.to, etherUnits.toEther(new BigNumber(tx.value), 'won'), tx.gas, tx.timestamp]
+    return [tx.hash, tx.blockNumber, tx.from, tx.to, wonUnits.toWon(new BigNumber(tx.value), 'won'), tx.gas, tx.timestamp]
   })
 }
 
@@ -19,7 +19,7 @@ function filterTrace(txs, value) {
       if (t.action.address)
         t.from = t.action.address;
       if (t.action.balance)
-        t.value = etherUnits.toEther( new BigNumber(t.action.balance), "wei");
+        t.value = wonUnits.toWon( new BigNumber(t.action.balance), "wei");
       if (t.action.refundAddress)
         t.to = t.action.refundAddress;
     } else {
@@ -32,7 +32,7 @@ function filterTrace(txs, value) {
         t.gasUsed = new BigNumber(t.result.gasUsed).toNumber();
       if ((t.result) && (t.result.address))
         t.to = t.result.address;
-      t.value = etherUnits.toEther( new BigNumber(t.action.value), "wei");            
+      t.value = wonUnits.toWon( new BigNumber(t.action.value), "wei");
     }
     return t;
   })
@@ -71,14 +71,14 @@ function filterBlocks(blocks) {
 function datatableTX(txs) {
   return txs.map(function(tx){
     return [tx.hash, tx.blockNumber, tx.from, tx.to, 
-            etherUnits.toEther(new BigNumber(tx.value), 'wei'), tx.gas, tx.timestamp]
+            wonUnits.toWon(new BigNumber(tx.value), 'wei'), tx.gas, tx.timestamp]
   })
 }
 
 function internalTX(txs) {
   return txs.map(function(tx){
     return [tx.transactionHash, tx.blockNumber, tx.action.from, tx.action.to, 
-            etherUnits.toEther(new BigNumber(tx.action.value), 'wei'), tx.action.gas, tx.timestamp]
+            wonUnits.toWon(new BigNumber(tx.action.value), 'wei'), tx.action.gas, tx.timestamp]
   })
 }
 
@@ -105,7 +105,7 @@ var hex2ascii = function (hexIn) {
     var ba = RLP.decode(hex);
     var test = ba[1].toString('ascii');
 
-    if (test == 'geth' || test == 'Parity') {
+    if (test == 'gwon' || test == 'Parity') {
       // FIXME
       ba[0] = ba[0].toString('hex');
     }

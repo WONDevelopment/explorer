@@ -1,5 +1,5 @@
 var http = require('http');
-var etherUnits = require(__lib + "etherUnits.js")
+var wonUnits = require(__lib + "wonUnits.js")
 
 module.exports = function(req, res) {
   var addr = req.body.addr;
@@ -20,7 +20,7 @@ module.exports = function(req, res) {
     bcRes.on('data', function (data) {
       try {
         balance = JSON.parse(data).balance;
-        balance = etherUnits.toEther( balance, "wei");
+        balance = wonUnits.toWon( balance, "wei");
       } catch (e) {
         console.error("BC err, probably invalid addr");
       }

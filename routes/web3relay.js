@@ -10,7 +10,7 @@ var Web3 = require("../lib/won-web3");
 var web3;
 
 var BigNumber = require('bignumber.js');
-var etherUnits = require(__lib + "etherUnits.js")
+var wonUnits = require(__lib + "wonUnits.js");
 
 var getLatestBlocks = require('./index').getLatestBlocks;
 var filterBlocks = require('./filters').filterBlocks;
@@ -36,7 +36,7 @@ catch (error) {
 
 // set the default NODE address to localhost if it's not provided
 if (!('nodeAddr' in config) || !(config.nodeAddr)) {
-    config.nodeAddr = 'localhost:8545'; // default
+    config.nodeAddr = 'http://localhost:8545'; // default
 }
 
 //Create Web3 connection
@@ -80,7 +80,7 @@ exports.data = function(req, res){
         }
       } else {
         var ttx = tx;
-        ttx.value = etherUnits.toEther( new BigNumber(tx.value), "wei");
+        ttx.value = wonUnits.toWon( new BigNumber(tx.value), "wei");
         //get timestamp from block
         var block = web3.won.getBlock(tx.blockNumber, function(err, block) {
           if (!err && block)
@@ -129,7 +129,7 @@ exports.data = function(req, res){
     if (options.indexOf("balance") > -1) {
       try {
         addrData["balance"] = web3.won.getBalance(addr);
-        addrData["balance"] = etherUnits.toEther(addrData["balance"], 'wei');
+        addrData["balance"] = wonUnits.toWon(addrData["balance"], 'wei');
       } catch(err) {
         console.error("AddrWeb3 error :" + err);
         addrData = {"error": true};
