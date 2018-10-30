@@ -7,8 +7,8 @@ var Web3 = require('../lib/won-web3');
 var mongoose = require( 'mongoose' );
 var BlockStat = require( '../db.js' ).BlockStat;
 
-var updateStats = function(range, interval, rescan) {
-    var web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:8545'));
+var updateStats = function(config, range, interval, rescan) {
+    var web3 = new Web3(new Web3.providers.HttpProvider(config.nodeAddr));
 
     mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost/blockDB');
     mongoose.set('debug', true);
@@ -146,11 +146,18 @@ if (process.env.RESCAN) {
     rescan = true;
 }
 
+var config = JSON.parse(readFileSync('config.json'));
+
+// set the default NODE address to localhost if it's not provided
+if (!('nodeAddr' in config) || !(config.nodeAddr)) {
+    config.nodeAddr = 'http://localhost:8545'; // default
+}
+
 // run
-updateStats(range, interval, rescan);
+updateStats(config, range, interval, rescan);
 
 if (!rescan) {
     setInterval(function() {
-      updateStats(range, interval);
+      updateStats(config, range, interval);
     }, statInterval);
 }

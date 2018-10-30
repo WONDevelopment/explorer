@@ -109,7 +109,7 @@ var writeTransactionsToDB = function(config, blockData) {
   Patch Missing Blocks
 */
 var patchBlocks = function(config) {
-    var web3 = new Web3(new Web3.providers.HttpProvider(config.nodeAddr.toString()));
+    var web3 = new Web3(new Web3.providers.HttpProvider(config.nodeAddr));
 
     // number of blocks should equal difference in block numbers
     var firstBlock = 0;
