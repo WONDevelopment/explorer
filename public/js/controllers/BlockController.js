@@ -16,7 +16,7 @@ angular.module('BlocksApp').controller('BlockController', function($stateParams,
       data: {"block": $scope.blockNum}
     }).then(function(resp) {
       if (resp.data.error)
-        $location.path("/err404/block/" + $scope.blockNum);
+        $location.path("/error/block/" + $scope.blockNum);
       else {
         $scope.block = resp.data;
         $scope.block.datetime = new Date(resp.data.timestamp*1000); 

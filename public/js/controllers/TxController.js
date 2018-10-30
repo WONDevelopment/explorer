@@ -21,7 +21,7 @@ angular.module('BlocksApp').controller('TxController', function($stateParams, $r
           $location.path("/block/" + $scope.hash);
           return;
         }
-        $location.path("/err404/tx/" + $scope.hash);
+        $location.path("/error/tx/" + $scope.hash);
         return;
       }
       $scope.tx = resp.data;

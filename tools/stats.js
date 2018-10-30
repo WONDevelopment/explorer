@@ -3,7 +3,7 @@
 */
 
 var Web3 = require('../lib/won-web3');
-
+var fs = require('fs');
 var mongoose = require( 'mongoose' );
 var BlockStat = require( '../db.js' ).BlockStat;
 
@@ -146,7 +146,7 @@ if (process.env.RESCAN) {
     rescan = true;
 }
 
-var config = JSON.parse(readFileSync('config.json'));
+var config = JSON.parse(fs.readFileSync('config.json'));
 
 // set the default NODE address to localhost if it's not provided
 if (!('nodeAddr' in config) || !(config.nodeAddr)) {

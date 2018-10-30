@@ -3,6 +3,8 @@ var mongoose = require( 'mongoose' );
 var Block     = mongoose.model( 'Block' );
 var Transaction = mongoose.model( 'Transaction' );
 var filters = require('./filters');
+var fs = require('fs');
+var config = JSON.parse(fs.readFileSync('config.json'));
 
 var async = require('async');
 
@@ -198,6 +200,7 @@ var sendBlocks = function(lim, res) {
           });
           docs.forEach(function(doc) {
             doc.txn = txns[doc.number] || 0;
+            doc.minerName = config.settings.signers[doc.miner];
           });
         }
         res.write(JSON.stringify({"blocks": filters.filterBlocks(docs)}));

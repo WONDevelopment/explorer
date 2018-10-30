@@ -281,8 +281,8 @@ BlocksApp.config(['$stateProvider', '$urlRouterProvider', function($stateProvide
                 }]
             }
         })
-        .state('err404', {
-            url: "/err404/{thing}/{hash}",
+        .state('error', {
+            url: "/error/{thing}/{hash}",
             templateUrl: "views/err_404.html",
             data: {pageTitle: '404 Not Found.'},
             controller: "ErrController",
