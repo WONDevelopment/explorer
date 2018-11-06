@@ -6,10 +6,11 @@
   "repository": "https://github.com/WONDevelopment/explorer",
   "license": "MIT",
   "scripts": {
-    "prestart": "pgrep mongod || mongod --dbpath data --fork --logpath /dev/null",
     "start": "concurrently \"node tools/sync.js \" \"node app.js\" ",
     "pretest": "copyfiles app.js app/  ",
-    "test": "./node_modules/.bin/mocha --reporter spec  "
+    "test": "./node_modules/.bin/mocha --reporter spec  ",
+    "dev:mongoUp": "pgrep mongod || mongod --dbpath data --fork --logpath /dev/null",
+    "dev:mongoDown": "mongo admin --eval \"db.getSiblingDB('admin').shutdownServer()\""
   },
   "dependencies": {
     "bignumber.js": "^5.0.0",
