@@ -11,11 +11,11 @@ var async = require('async');
 module.exports = function(app){
   var web3relay = require('./web3relay');
 
-  var DAO = require('./dao');
+  // var DAO = require('./dao');
   var Token = require('./token');
 
   var compile = require('./compiler');
-  var fiat = require('./fiat');
+  // var fiat = require('./fiat');
   var stats = require('./stats');
 
   /* 
@@ -30,12 +30,12 @@ module.exports = function(app){
   app.post('/block', getBlock);
   app.post('/data', getData);
 
-  app.post('/daorelay', DAO);
+  // app.post('/daorelay', DAO);
   app.post('/tokenrelay', Token);  
   app.post('/web3relay', web3relay.data);
   app.post('/compile', compile);
 
-  app.post('/fiat', fiat);
+  // app.post('/fiat', fiat);
   app.post('/stats', stats);
 }
 
