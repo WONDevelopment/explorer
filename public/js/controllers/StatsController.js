@@ -23,7 +23,7 @@ angular.module('BlocksApp').controller('StatsController', function($stateParams,
             "title": "Miner Hashrate Distribution"
         },
         "The_bomb_chart": {
-            "title": "The bomb chart"
+            "title": "The Transaction History"
         }
     }
 
