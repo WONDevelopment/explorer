@@ -13,25 +13,35 @@ var async = require('async');
 var mongoose = require( 'mongoose' );
 var Transaction = mongoose.model( 'Transaction' );
 var TransferToken     = mongoose.model( 'TransferToken' );
-
+var fs = require('fs');
 // var BigNumber = require('bignumber.js');
 var wonUnits = require(__lib + "wonUnits.js");
 
 const defaultABI = [{"constant":true,"inputs":[],"name":"name","outputs":[{"name":"","type":"string"}],"payable":false,"type":"function"},{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"type":"function"},{"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint8"}],"payable":false,"type":"function"},{"constant":true,"inputs":[{"name":"","type":"address"}],"name":"balanceOf","outputs":[{"name":"","type":"uint256"}],"payable":false,"type":"function"},{"constant":true,"inputs":[],"name":"symbol","outputs":[{"name":"","type":"string"}],"payable":false,"type":"function"}];
 
-var tokensParam = require('../public/tokens');
-var tokenAddrs = [];
-for (var index in tokensParam) tokenAddrs[index] = tokensParam[index].address;
-
+var tokensParam = [];
+var readConfig = function () {
+    fs.readFile('./public/tokens.json', function (err, content) {
+        if (err) throw err;
+        var json = JSON.parse(content);
+        var tokenAddrs = [];
+        for (var index in json)
+            tokenAddrs[index] = json[index].address;
+        tokensParam[0] = tokenAddrs;
+        tokensParam[1] = json;
+    });
+};
+readConfig();
+setInterval(readConfig, 1000*60*2);
 
 module.exports = function (req, res) {
     console.log(req.body);
 
     var contractAddress = req.body.address;
-    var index = tokenAddrs.indexOf(contractAddress);
+    var index = tokensParam[0].indexOf(contractAddress);
     var curAbi;
     if (index !== -1) {
-        curAbi = tokensParam[index].abi;
+        curAbi = tokensParam[1][index].abi;
     } else {
         curAbi = defaultABI;
     }
@@ -122,10 +132,10 @@ module.exports = function (req, res) {
                         "blockHash": doc.blockHash,
                         "amount": doc.value,
                         "from": doc.from,
-                        "params": obj.params,
+                        "params": obj == null ? 'no params': obj.params,
                         "gas": doc.gas,
                         "timestamp": doc.timestamp,
-                        "type": obj.name
+                        "type": obj == null ? 'unknown' : obj.name
                     };
                     return conTx;
                 });

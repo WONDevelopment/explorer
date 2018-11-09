@@ -18,11 +18,8 @@ var Block           = mongoose.model( 'Block' );
 var Transaction     = mongoose.model( 'Transaction' );
 var TransferToken     = mongoose.model( 'TransferToken' );
 
-var tokensParam = require('../public/tokens');
-var tokenAddrs = [];
-for (var index in tokensParam) {
-  tokenAddrs[index] = tokensParam[index].address;
-}
+const updateTokens = require("./updateTokens").updateTokens;
+var tokensParam = require("./updateTokens").tokensParam;
 
 /**
   //Just listen for latest blocks and sync from the start of the app.
@@ -156,10 +153,10 @@ var writeTransactionsToDB = function(config, blockData, flush) {
       self.bulkOps.push(txData);
 
       // parsing the input data if configured
-      if (tokens.length > 0 && txData.input !== "0x") {
-        var index = tokenAddrs.indexOf(txData.to);
+      if (tokensParam[0].length > 0 && txData.input !== "0x") {
+        var index = tokensParam[0].indexOf(txData.to);
         if(index !== -1) {
-            abiDecoder.addABI(tokensParam[index].abi);
+            abiDecoder.addABI(tokensParam[1][index].abi);
             var obj = abiDecoder.decodeMethod(txData.input);
             if (obj.name === "transfer") {
               var conTx = {
@@ -369,6 +366,10 @@ if (config.patch === true){
   console.log('Checking for missing blocks');
   runPatcher(config);
 }
+
+// first call at start
+updateTokens();
+setInterval(updateTokens, 1000*60*5);
 
 // Start listening for latest blocks
 listenBlocks(config);
