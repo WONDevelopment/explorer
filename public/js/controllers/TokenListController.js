@@ -5,9 +5,14 @@ angular.module('BlocksApp').controller('TokenListController', function($statePar
     });
     $scope.settings = $rootScope.setup;
 
-    $http.get('/tokens.json')
-      .then(function(res){
-        $scope.tokens = res.data;
-      })
-
-})
+    $http.get('https://raw.githubusercontent.com/WONDevelopment/explorer/master/public/tokens.json')
+        .then(function (res) {
+            $scope.tokens = res.data;
+        })
+        .catch(err => {
+            console.error(err);
+            $http.get('/tokens.json').then(function (res) {
+                $scope.tokens = res.data;
+            })
+        })
+});

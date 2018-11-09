@@ -254,3 +254,4 @@ exports.data = function(req, res){
 };
 
 exports.won = web3.won;
+exports.web3 = web3;

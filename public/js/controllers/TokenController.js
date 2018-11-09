@@ -47,11 +47,29 @@ angular.module('BlocksApp').controller('TokenController', function($stateParams,
             console.log(resp.data)
             $scope.showTokens = true;
             $scope.userTokens = resp.data.tokens;
+            $scope.form.lastInput = addr;
           });
         } else 
             $scope.errors.address = "Invalid Address";
+    };
 
-    }
+    $http({
+        method: 'POST',
+        url: '/tokenrelay',
+        data: {"addr": address, "action": "count"}
+        }).then(function(resp) {
+        $scope.token.count = resp.data.txCount;
+        $scope.transferCount = resp.data.transferCount;
+    });
+
+    // fetch contract transaction
+    $http({
+        method: 'POST',
+        url: '/tokenrelay',
+        data: {"addr": $scope.addrHash, "length": 20, "action": "transaction"}
+    }).then(function(resp) {
+        $scope.latest_transactions = resp.data;
+    });
 
 })
 .directive('contractSource', function($http) {
@@ -71,3 +89,35 @@ angular.module('BlocksApp').controller('TokenController', function($stateParams,
       }
   }
 })
+.directive('transferTokens', function($http) {
+    return {
+        restrict: 'E',
+        templateUrl: '/views/transfer-tokens.html',
+        scope: false,
+        link: function(scope, elem, attrs){
+            scope.transferStart = 0;
+            // fetch created tokens
+            scope.getTransferTokens = function(next) {
+                if (next) scope.transferStart += 20;
+                else scope.transferStart -= 20;
+
+                if (scope.transferStart < 0) scope.transferStart = 0;
+
+                var data = {
+                    "action": "transfer",
+                    "addr": scope.addrHash,
+                    "start": scope.transferStart
+                };
+
+                $http({
+                    method: 'POST',
+                    url: '/tokenrelay',
+                    data: data
+                }).then(function(resp) {
+                    scope.transfer_tokens = resp.data;
+                });
+            };
+            scope.getTransferTokens();
+        }
+    }
+});
