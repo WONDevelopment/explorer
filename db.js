@@ -66,6 +66,18 @@ var BlockStat = new Schema(
     "uncleCount": Number
 });
 
+var TransferToken = new Schema(
+{
+    "txHash": {type: String, index: {unique: true}},
+    "blockNumber": {type: Number, index: {unique: false}},
+    "address": String,
+    "amount": String,
+    "from": String,
+    "to": String,
+    "gas": String,
+    "timestamp": Number
+});
+
 // create indices
 Transaction.index({blockNumber:-1});
 Transaction.index({from:1, blockNumber:-1});
@@ -76,10 +88,12 @@ mongoose.model('BlockStat', BlockStat);
 mongoose.model('Block', Block);
 mongoose.model('Contract', Contract);
 mongoose.model('Transaction', Transaction);
+mongoose.model('TransferToken', TransferToken);
 module.exports.BlockStat = mongoose.model('BlockStat');
 module.exports.Block = mongoose.model('Block');
 module.exports.Contract = mongoose.model('Contract');
 module.exports.Transaction = mongoose.model('Transaction');
+module.exports.TransferToken = mongoose.model('TransferToken');
 
 
 mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost/blockDB');
