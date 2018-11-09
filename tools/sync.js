@@ -11,10 +11,18 @@ var getSigner = require("../lib/blockMiner.js");
 
 var fs = require('fs');
 var Web3 = require('../lib/won-web3');
+const abiDecoder = require('../lib/abi-decoder');
 
 var mongoose        = require( 'mongoose' );
 var Block           = mongoose.model( 'Block' );
 var Transaction     = mongoose.model( 'Transaction' );
+var TransferToken     = mongoose.model( 'TransferToken' );
+
+var tokensParam = require('../public/tokens');
+var tokenAddrs = [];
+for (var index in tokensParam) {
+  tokenAddrs[index] = tokensParam[index].address;
+}
 
 /**
   //Just listen for latest blocks and sync from the start of the app.
@@ -137,6 +145,7 @@ var writeTransactionsToDB = function(config, blockData, flush) {
   var self = writeTransactionsToDB;
   if (!self.bulkOps) {
     self.bulkOps = [];
+    self.transfers = [];
     self.blocks = 0;
   }
   if (blockData && blockData.transactions.length > 0) {
@@ -145,6 +154,28 @@ var writeTransactionsToDB = function(config, blockData, flush) {
       txData.timestamp = blockData.timestamp;
       txData.value = wonUnits.toWon(new BigNumber(txData.value), 'wei');
       self.bulkOps.push(txData);
+
+      // parsing the input data if configured
+      if (tokens.length > 0 && txData.input !== "0x") {
+        var index = tokenAddrs.indexOf(txData.to);
+        if(index !== -1) {
+            abiDecoder.addABI(tokensParam[index].abi);
+            var obj = abiDecoder.decodeMethod(txData.input);
+            if (obj.name === "transfer") {
+              var conTx = {
+                "txHash": txData.hash,
+                "blockNumber": txData.blockNumber,
+                "address": txData.to,
+                "amount": obj.params[1].value,
+                "from": txData.from,
+                "to": obj.params[0].value,
+                "gas": txData.gas,
+                "timestamp": txData.timestamp
+              };
+              self.transfers.push(conTx);
+            }
+        }
+      }
     }
     console.log('\t- block #' + blockData.number.toString() + ': ' + blockData.transactions.length.toString() + ' transactions recorded.');
   }
@@ -170,8 +201,19 @@ var writeTransactionsToDB = function(config, blockData, flush) {
         console.log('* ' + tx.insertedCount + ' transactions successfully recorded.');
       }
     });
+
+    if (self.transfers.length === 0) return;
+    var conTxs = self.transfers;
+    self.transfers = [];
+    TransferToken.collection.insert(conTxs, function (err, tx) {
+        if ( typeof err !== 'undefined' && err ) {
+            console.log('Error: Aborted due to error on Transfer: ' + err);
+        }else{
+            console.log('** ' + tx.insertedCount + ' transfer successfully recorded.');
+        }
+    });
   }
-}
+};
 /**
   //check oldest block or starting block then callback
 **/
