@@ -5,8 +5,8 @@ const request = require('request');
 var tokensParam = []; // require('../public/tokens');
 
 var updateTokens = function () {
-    // request('https://raw.githubusercontent.com/WONDevelopment/explorer/master/public/tokens.json',
-    request('https://raw.githubusercontent.com/ethereumproject/explorer/master/public/tokens.json',
+    request('https://raw.githubusercontent.com/WONDevelopment/explorer/master/public/tokens.json',
+    // request('https://raw.githubusercontent.com/ethereumproject/explorer/master/public/tokens.json',
         { json: true }, (err, res, body) => {
         if (res.statusCode !== 200) {
             console.log('UpdateTokens: ', body);
