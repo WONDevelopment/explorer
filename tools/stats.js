@@ -7,8 +7,8 @@ var fs = require('fs');
 var mongoose = require( 'mongoose' );
 var BlockStat = require( '../db.js' ).BlockStat;
 
-var updateStats = function(config, range, interval, rescan) {
-    var web3 = new Web3(new Web3.providers.HttpProvider(config.nodeAddr));
+var updateStats = function(nodeAddr, range, interval, rescan) {
+    var web3 = new Web3(new Web3.providers.HttpProvider(nodeAddr));
 
     mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost/blockDB');
     mongoose.set('debug', true);
@@ -153,11 +153,12 @@ if (!('nodeAddr' in config) || !(config.nodeAddr)) {
     config.nodeAddr = 'http://localhost:8545'; // default
 }
 
+var nodeAddr = process.env.NODE_ADDR || config.nodeAddr;
 // run
-updateStats(config, range, interval, rescan);
+updateStats(nodeAddr, range, interval, rescan);
 
 if (!rescan) {
     setInterval(function() {
-      updateStats(config, range, interval);
+      updateStats(nodeAddr, range, interval);
     }, statInterval);
 }

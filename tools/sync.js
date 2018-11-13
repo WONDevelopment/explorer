@@ -367,7 +367,7 @@ if (!('bulkSize' in config) || (typeof config.bulkSize) !== 'number') {
 console.log('Connecting ' + config.nodeAddr + '...');
 
 // Sets address for RPC WEB3 to connect to, usually your node IP address defaults ot localhost
-var web3 = new Web3(new Web3.providers.HttpProvider(config.nodeAddr));
+var web3 = new Web3(new Web3.providers.HttpProvider(process.env.NODE_ADDR || config.nodeAddr));
 
 // patch missing blocks
 if (config.patch === true){
