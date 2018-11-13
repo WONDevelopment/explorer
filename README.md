@@ -18,14 +18,14 @@ brew install mongodb
 ```
 Ubuntu: 
 ```bash
-sudo apt-get install -y mongodb-org
+sudo apt-get install -y mongodb
 ```
 
 #### Initialization
 ```bash
 git clone https://github.com/WONDevelopment/explorer
 cd explorer
-cnpm install
+npm install
 ```
 
 ## Populate the DB
