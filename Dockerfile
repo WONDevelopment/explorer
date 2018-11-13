@@ -1,7 +1,11 @@
-FROM node:latest
+FROM node:8 AS builder
+WORKDIR /src
+COPY package.json /src
+RUN npm install --env=production
 
-COPY . /
-RUN npm install
-
-EXPOSE 8000
+FROM node:8-alpine
+RUN mkdir /app
+WORKDIR /app
+COPY --from=builder /src /app
+COPY . /app
 ENTRYPOINT ["node"]

@@ -3,3 +3,7 @@ node_modules
 data
 test
 app
+./.*
+Dockerfile
+package-lock.json
+config.example.json
