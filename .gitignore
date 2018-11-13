@@ -46,3 +46,6 @@ public/js/stats/The_bomb_chart.js
 # Intellij Idea
 .idea
 .iml
+
+# Mac
+.DS_Store
