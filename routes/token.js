@@ -4,7 +4,6 @@
     Endpoint for client interface with ERC-20 tokens
 */
 
-var won = require('./web3relay').won;
 var web3 = require('./web3relay').web3;
 const abiDecoder = require('../lib/abi-decoder');
 
@@ -46,14 +45,14 @@ module.exports = function (req, res) {
         curAbi = defaultABI;
     }
 
-    var Token = won.contract(curAbi).at(contractAddress);
+    var Token = web3.won.contract(curAbi).at(contractAddress);
     abiDecoder.addABI(curAbi);
 
     if (!("action" in req.body))
         res.status(400).send();
     else if (req.body.action === "info") {
         try {
-            var actualBalance = won.getBalance(contractAddress);
+            var actualBalance = web3.won.getBalance(contractAddress);
             actualBalance = wonUnits.toWon(actualBalance, 'wei');
             var totalSupply = Token.totalSupply();
             // totalSupply = wonUnits.toWon(totalSupply, 'wei')*100;
@@ -69,20 +68,22 @@ module.exports = function (req, res) {
                 symbol = web3.toUtf8(symbol);
             }
 
-            var count = won.getTransactionCount(contractAddress);
+            var count = web3.won.getTransactionCount(contractAddress);
             var tokenData = {
                 "balance": actualBalance,
                 "total_supply": totalSupply,
                 "count": count,
                 "name": name,
                 "symbol": symbol,
-                "bytecode": won.getCode(contractAddress),
+                "bytecode": web3.won.getCode(contractAddress),
                 "creator": owner
             }
 
             var addrFind = Transaction.find({ $and: [{"to": null}, {"from": owner}] }).lean(true);
             addrFind.exec(function (err, docs) {
-                tokenData.transaction = docs[0].hash;
+                if (docs.length > 0) {
+                    tokenData.transaction = docs[0].hash;
+                }
                 res.write(JSON.stringify(tokenData));
                 res.end();
             });

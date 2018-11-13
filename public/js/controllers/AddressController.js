@@ -18,7 +18,7 @@ angular.module('BlocksApp').controller('AddressController', function($stateParam
       fetchTxs();
       if (resp.data.isContract) {
         $rootScope.$state.current.data["pageTitle"] = "Contract Address";
-        fetchInternalTxs();
+        // fetchInternalTxs();
       }
     });
 

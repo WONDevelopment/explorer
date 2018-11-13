@@ -86,7 +86,7 @@ exports.data = function(req, res){
         var block = web3.won.getBlock(tx.blockNumber, function(err, block) {
           if (!err && block)
             ttx.timestamp = block.timestamp;
-          ttx.isTrace = (ttx.input != "0x");
+          // ttx.isTrace = (ttx.input != "0x");
           res.write(JSON.stringify(ttx));
           res.end();
         });
@@ -253,5 +253,4 @@ exports.data = function(req, res){
 
 };
 
-exports.won = web3.won;
 exports.web3 = web3;
