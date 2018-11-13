@@ -48,7 +48,7 @@ var listenBlocks = function(config) {
         });
       }else{
         console.log('Error: Web3 connection time out trying to get block ' + latestBlock + ' retrying connection now');
-        listenBlocks(config);
+        setTimeout(function() { listenBlocks(config); }, syncInterval);
       }
     }
   });
@@ -99,7 +99,8 @@ var syncChain = function(config, nextBlock){
     setTimeout(function() { syncChain(config, nextBlock); }, syncInterval);
   }else{
     console.log('Error: Web3 connection time out trying to get block ' + nextBlock + ' retrying connection now');
-    syncChain(config, nextBlock);
+    // syncChain(config, nextBlock);
+    setTimeout(function() { syncChain(config, nextBlock); }, syncInterval*2);
   }
 }
 /**
