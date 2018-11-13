@@ -272,8 +272,13 @@ var runPatcher = function(config, startBlock, endBlock) {
       }
 
       var lastMissingBlock = docs[0].number + 1;
-      var currentBlock = web3.won.blockNumber;
-      runPatcher(config, lastMissingBlock, currentBlock - 1);
+
+      try {
+          var currentBlock = web3.won.blockNumber;
+          runPatcher(config, lastMissingBlock, currentBlock - 1);
+      } catch (e) {
+          console.error(e);
+      }
     });
     return;
   }
