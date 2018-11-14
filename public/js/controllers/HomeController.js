@@ -36,10 +36,10 @@ angular.module('BlocksApp').controller('HomeController', function($rootScope, $s
     $scope.blockLoading = false;
     $scope.settings = $rootScope.setup;
 
-    setInterval(function () {
-        $scope.reloadBlocks();
-        $scope.reloadTransactions();
-    }, 1000 * 8);
+    // setInterval(function () {
+    //     $scope.reloadBlocks();
+    //     $scope.reloadTransactions();
+    // }, 1000 * 8);
 })
 .directive('simpleSummaryStats', function($http) {
   return {
@@ -59,9 +59,9 @@ angular.module('BlocksApp').controller('HomeController', function($rootScope, $s
             });
       };
       getInfo();
-      setInterval(function () {
-          getInfo();
-      }, 1000 * 5);
+      // setInterval(function () {
+      //     getInfo();
+      // }, 1000 * 5);
     }
   }
 })
