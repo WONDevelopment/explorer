@@ -35,6 +35,11 @@ angular.module('BlocksApp').controller('HomeController', function($rootScope, $s
     $scope.txLoading = false;
     $scope.blockLoading = false;
     $scope.settings = $rootScope.setup;
+
+    setInterval(function () {
+        $scope.reloadBlocks();
+        $scope.reloadTransactions();
+    }, 1000 * 8);
 })
 .directive('simpleSummaryStats', function($http) {
   return {
@@ -43,16 +48,21 @@ angular.module('BlocksApp').controller('HomeController', function($rootScope, $s
     scope: true,
     link: function(scope, elem, attrs){
       scope.stats = {};
-      var statsURL = "/web3relay";
-      $http.post(statsURL, {"action": "hashrate"})
-       .then(function(res){
-          scope.stats.hashrate = res.data.hashrate;
-          scope.stats.difficulty = res.data.difficulty;
-          scope.stats.blockHeight = res.data.blockHeight;
-          scope.stats.blockTime = res.data.blockTime;
-          //console.log(res);
-	});
-      }
+      var getInfo = function () {
+          $http.post("/web3relay", {"action": "hashrate"})
+           .then(function(res){
+              scope.stats.hashrate = res.data.hashrate;
+              scope.stats.difficulty = res.data.difficulty;
+              scope.stats.blockHeight = res.data.blockHeight;
+              scope.stats.blockTime = res.data.blockTime;
+              //console.log(res);
+            });
+      };
+      getInfo();
+      setInterval(function () {
+          getInfo();
+      }, 1000 * 5);
+    }
   }
 })
 .directive('siteNotes', function() {
