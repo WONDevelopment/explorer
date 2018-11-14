@@ -25,11 +25,11 @@
         </tbody>
     </table>
     <ul class="pager">
-        <li class="previous" ng-show="{{transferStart==0}}">
-            <a ng-click="getTransferTokens(false)"> ← Newer </a>
+        <li class="previous {{hideDirection(false)}}">
+            <a ng-click="getTransferTokens(false)"> ← Prev </a>
         </li>
-        <li class="next" ng-show="{{transferCount > (transferStart + 20)}}">
-            <a ng-click="getTransferTokens(true)"> Older → </a>
+        <li class="next {{hideDirection(true)}}">
+            <a ng-click="getTransferTokens(true)"> Next → </a>
         </li>
     </ul>
 </div>

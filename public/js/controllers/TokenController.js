@@ -96,6 +96,16 @@ angular.module('BlocksApp').controller('TokenController', function($stateParams,
         scope: false,
         link: function(scope, elem, attrs){
             scope.transferStart = 0;
+            scope.hideDirection = function (next) {
+                if (next) {
+                    if (scope.transferCount < (scope.transferStart + 20))
+                        return "ng-hide";
+                } else {
+                    if (scope.transferStart === 0)
+                        return "ng-hide";
+                }
+                return "";
+            };
             // fetch created tokens
             scope.getTransferTokens = function(next) {
                 if (next) scope.transferStart += 20;
