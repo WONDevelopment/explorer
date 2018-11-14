@@ -27,32 +27,41 @@ const syncInterval = process.env.SYNC_INTERVAL || 1000;
   //Just listen for latest blocks and sync from the start of the app.
 **/
 var listenBlocks = function(config) {
-    var newBlocks = web3.won.filter("latest");
-    newBlocks.watch(function (error,latestBlock) {
-    if(error) {
-        console.log('Error: ' + error);
-    } else if (latestBlock == null) {
-        console.log('Warning: null block hash');
-    } else {
-      console.log('Found new block: ' + latestBlock);
-      if(web3.isConnected()) {
-        web3.won.getBlock(latestBlock, true, function(error,blockData) {
-          if(error) {
-            console.log('Warning: error on getting block with hash/number: ' +   latestBlock + ': ' + error);
-          }else if(blockData == null) {
-            console.log('Warning: null block data received from the block with hash/number: ' + latestBlock);
-          }else{
-            writeBlockToDB(config, blockData, true);
-            writeTransactionsToDB(config, blockData, true);
-          }
+    if(web3.isConnected()) {
+        var newBlocks = web3.won.filter("latest");
+        newBlocks.watch(function (error, latestBlock) {
+            if (error) {
+                console.log('Block Filter Callback ' + error);
+                if (error.message.includes('filter not found')) {
+                    newBlocks.stopWatching();
+                    setTimeout(function () { listenBlocks(config); }, syncInterval);
+                }
+            } else if (latestBlock == null) {
+                console.log('Warning: null block hash');
+            } else {
+                console.log('Found new block: ' + latestBlock);
+                if (web3.isConnected()) {
+                    web3.won.getBlock(latestBlock, true, function (error, blockData) {
+                        if (error) {
+                            console.log('Warning: error on getting block with hash/number: ' + latestBlock + ': ' + error);
+                        } else if (blockData == null) {
+                            console.log('Warning: null block data received from the block with hash/number: ' + latestBlock);
+                        } else {
+                            writeBlockToDB(config, blockData, true);
+                            writeTransactionsToDB(config, blockData, true);
+                        }
+                    });
+                } else {
+                    console.log('Error: Web3 connection time out trying to get block ' + latestBlock + ' retrying connection now');
+                    setTimeout(function () { listenBlocks(config); }, syncInterval);
+                }
+            }
         });
-      }else{
-        console.log('Error: Web3 connection time out trying to get block ' + latestBlock + ' retrying connection now');
-        setTimeout(function() { listenBlocks(config); }, syncInterval);
-      }
+    } else {
+        console.log('Error: Web3 is not connected, retrying block watching shortly...');
+        setTimeout(function () { listenBlocks(config); }, syncInterval*2);
     }
-  });
-}
+};
 /**
   If full sync is checked this function will start syncing the block chain from lastSynced param see README
 **/
@@ -364,7 +373,7 @@ if (!('output' in config) || (typeof config.output) !== 'string') {
 if (!('bulkSize' in config) || (typeof config.bulkSize) !== 'number') {
   config.bulkSize = 100;
 }
-console.log('Connecting ' + process.env.NODE_ADDR || config.nodeAddr + '...');
+console.log('Connecting ' + (process.env.NODE_ADDR || config.nodeAddr) + '...');
 
 // Sets address for RPC WEB3 to connect to, usually your node IP address defaults ot localhost
 var web3 = new Web3(new Web3.providers.HttpProvider(process.env.NODE_ADDR || config.nodeAddr));
