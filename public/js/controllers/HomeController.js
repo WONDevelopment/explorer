@@ -30,16 +30,18 @@ angular.module('BlocksApp').controller('HomeController', function($rootScope, $s
         $scope.txLoading = false;
       });
     }
-    $scope.reloadBlocks();
-    $scope.reloadTransactions();
-    $scope.txLoading = false;
-    $scope.blockLoading = false;
-    $scope.settings = $rootScope.setup;
+    var checkData = function() {
+        $scope.reloadBlocks();
+        $scope.reloadTransactions();
+        $scope.txLoading = false;
+        $scope.blockLoading = false;
 
-    // setInterval(function () {
-    //     $scope.reloadBlocks();
-    //     $scope.reloadTransactions();
-    // }, 1000 * 8);
+        if ($scope.$state.current.url === '/home')
+            setTimeout(checkData, 1000 * 8);
+    }
+
+    $scope.settings = $rootScope.setup;
+    checkData();
 })
 .directive('simpleSummaryStats', function($http) {
   return {
@@ -57,11 +59,11 @@ angular.module('BlocksApp').controller('HomeController', function($rootScope, $s
               scope.stats.blockTime = res.data.blockTime;
               //console.log(res);
             });
+
+          if (scope.$state.current.url === '/home')
+              setTimeout(getInfo, 1000 * 4);
       };
       getInfo();
-      // setInterval(function () {
-      //     getInfo();
-      // }, 1000 * 5);
     }
   }
 })
