@@ -8,6 +8,8 @@ var config = JSON.parse(fs.readFileSync('config.json'));
 
 var async = require('async');
 
+require('./abi').configInit();
+
 module.exports = function(app){
   var web3relay = require('./web3relay');
 

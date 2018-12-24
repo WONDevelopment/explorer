@@ -11,15 +11,13 @@ var getSigner = require("../lib/blockMiner.js");
 
 var fs = require('fs');
 var Web3 = require('../lib/won-web3');
-const abiDecoder = require('../lib/abi-decoder');
 
 var mongoose        = require( 'mongoose' );
 var Block           = mongoose.model( 'Block' );
 var Transaction     = mongoose.model( 'Transaction' );
 var TransferToken     = mongoose.model( 'TransferToken' );
 
-const updateTokens = require("./updateTokens").updateTokens;
-var tokensParam = require("./updateTokens").tokensParam;
+const updateTokens = require("./updateTokens");
 
 const syncInterval = process.env.SYNC_INTERVAL || 1000;
 
@@ -165,25 +163,24 @@ var writeTransactionsToDB = function(config, blockData, flush) {
       self.bulkOps.push(txData);
 
       // parsing the input data if configured
-      if (tokensParam[0].length > 0 && txData.input !== "0x") {
-        var index = tokensParam[0].indexOf(txData.to);
-        if(index !== -1) {
-            abiDecoder.addABI(tokensParam[1][index].abi);
-            var obj = abiDecoder.decodeMethod(txData.input);
-            if (obj.name === "transfer") {
-              var conTx = {
-                "txHash": txData.hash,
-                "blockNumber": txData.blockNumber,
-                "address": txData.to,
-                "amount": obj.params[1].value,
-                "from": txData.from,
-                "to": obj.params[0].value,
-                "gas": txData.gas,
-                "timestamp": txData.timestamp
-              };
-              self.transfers.push(conTx);
-            }
+      if (txData.input !== "0x") {
+        updateTokens.abiInfo(txData.to);
+
+        var obj = updateTokens.decodeByAbi(txData.input);
+        if (obj && obj.name === "transfer") {
+          var conTx = {
+            "txHash": txData.hash,
+            "blockNumber": txData.blockNumber,
+            "address": txData.to,
+            "amount": obj.params[1].value,
+            "from": txData.from,
+            "to": obj.params[0].value,
+            "gas": txData.gas,
+            "timestamp": txData.timestamp
+          };
+          self.transfers.push(conTx);
         }
+
       }
     }
     console.log('\t- block #' + blockData.number.toString() + ': ' + blockData.transactions.length.toString() + ' transactions recorded.');
@@ -385,8 +382,7 @@ if (config.patch === true){
 }
 
 // first call at start
-updateTokens();
-setInterval(updateTokens, 1000*60*5);
+updateTokens.webConfigInit();
 
 // Start listening for latest blocks
 listenBlocks(config);

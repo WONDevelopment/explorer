@@ -17,6 +17,8 @@ var getLatestBlocks = require('./index').getLatestBlocks;
 var filterBlocks = require('./filters').filterBlocks;
 var filterTrace = require('./filters').filterTrace;
 
+const abi = require('./abi');
+
 /*Start config for node connection and sync*/
 var config = {};
 //Look for config.json file if not
@@ -86,7 +88,10 @@ exports.data = function(req, res){
         var block = web3.won.getBlock(tx.blockNumber, function(err, block) {
           if (!err && block)
             ttx.timestamp = block.timestamp;
-          // ttx.isTrace = (ttx.input != "0x");
+          if (ttx.input != "0x") {
+              abi.abiInfo(tx.to)
+              ttx.inputJson = abi.decode(tx.input)
+          }
           res.write(JSON.stringify(ttx));
           res.end();
         });

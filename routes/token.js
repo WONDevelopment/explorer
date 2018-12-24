@@ -5,7 +5,6 @@
 */
 
 var web3 = require('./web3relay').web3;
-const abiDecoder = require('../lib/abi-decoder');
 
 var async = require('async');
 
@@ -16,37 +15,15 @@ var fs = require('fs');
 // var BigNumber = require('bignumber.js');
 var wonUnits = require(__lib + "wonUnits.js");
 
-const defaultABI = [{"constant":true,"inputs":[],"name":"name","outputs":[{"name":"","type":"string"}],"payable":false,"type":"function"},{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"type":"function"},{"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint8"}],"payable":false,"type":"function"},{"constant":true,"inputs":[{"name":"","type":"address"}],"name":"balanceOf","outputs":[{"name":"","type":"uint256"}],"payable":false,"type":"function"},{"constant":true,"inputs":[],"name":"symbol","outputs":[{"name":"","type":"string"}],"payable":false,"type":"function"}];
-
-var tokensParam = [];
-var readConfig = function () {
-    fs.readFile('./public/tokens.json', function (err, content) {
-        if (err) throw err;
-        var json = JSON.parse(content);
-        var tokenAddrs = [];
-        for (var index in json)
-            tokenAddrs[index] = json[index].address;
-        tokensParam[0] = tokenAddrs;
-        tokensParam[1] = json;
-    });
-};
-readConfig();
-setInterval(readConfig, 1000*60*2);
+const abi = require('./abi');
 
 module.exports = function (req, res) {
     console.log(req.body);
 
     var contractAddress = req.body.address;
-    var index = tokensParam[0].indexOf(contractAddress);
-    var curAbi;
-    if (index !== -1) {
-        curAbi = tokensParam[1][index].abi;
-    } else {
-        curAbi = defaultABI;
-    }
+    var curAbi = abi.abiInfo(contractAddress);
 
     var Token = web3.won.contract(curAbi).at(contractAddress);
-    abiDecoder.addABI(curAbi);
 
     if (!("action" in req.body))
         res.status(400).send();
@@ -127,13 +104,13 @@ module.exports = function (req, res) {
             var data;
             if (docs) {
                 data = docs.map( function(doc) {
-                    var obj = abiDecoder.decodeMethod(doc.input);
+                    var obj = abi.decode(doc.input);
                     var conTx = {
                         "txHash": doc.hash,
                         "blockHash": doc.blockHash,
                         "amount": doc.value,
                         "from": doc.from,
-                        "params": obj == null ? 'no params': obj.params,
+                        "params": obj == null ? 'no params': doc.input,
                         "gas": doc.gas,
                         "timestamp": doc.timestamp,
                         "type": obj == null ? 'unknown' : obj.name
