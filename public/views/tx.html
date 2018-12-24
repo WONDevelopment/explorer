@@ -22,7 +22,19 @@
           <tr ><td width="25%">gas Provided</td><td>{{tx.gas | number}}</td></tr>
           <tr ><td width="25%">gasPrice</td><td>{{tx.gasPrice | number}}</td></tr>
           <tr ><td width="25%">nonce</td><td>{{tx.nonce}}</td></tr>
-          <tr ><td width="25%">Input Data</td><td><pre class="code">{{tx.input}}</pre></td></tr>
+          <tr ><td width="25%">Input Data</td>
+              <td><div>
+                  <pre class="code" ng-if="tx.inputJson && original==false">Function: {{tx.inputJson.name}}
+
+ #   Name     Type      Value<div ng-repeat="param in tx.inputJson.params">[{{$index}}]: {{param.name}}    {{param.type}}    {{showValue(param)}}</div>
+                  </pre>
+                  <pre class="code" ng-if="!tx.inputJson || original==true">{{tx.input}}</pre>
+                  <button type='button' ng-click="showToggle()" ng-if="tx.inputJson" class="input-data-button">
+                      {{original?'Switch Back':'Show Original'}}</button>
+              </div>
+              </td>
+          </tr>
+          </tr>
         </table>
 
         <table class="table table-condensed" ng-show="tx.isTrace">

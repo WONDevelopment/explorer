@@ -8,6 +8,7 @@ angular.module('BlocksApp').controller('TxController', function($stateParams, $r
     $scope.hash = $stateParams.hash;
     $scope.tx = {"hash": $scope.hash};
     $scope.settings = $rootScope.setup;
+    $scope.original = false;
 
     //fetch web3 stuff
     $http({
@@ -39,5 +40,20 @@ angular.module('BlocksApp').controller('TxController', function($stateParams, $r
       }).then(function(resp) {
         $scope.internal_transactions = resp.data;
       });      
+    };
+
+    $scope.showValue = function (obj) {
+        var value = obj.value;
+        if (obj.type == 'bytes32')
+            value = toUtf8(obj.value);
+        // else if (obj.type == 'address')
+        //     value = '<a href="/addr/'+value+'">'+value+'</a>';
+        return value;
     }
+
+    $scope.showToggle = function () {
+        $scope.original = !$scope.original
+        return $scope.original;
+    }
+
 })

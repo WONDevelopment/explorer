@@ -131,3 +131,9 @@ li.ng-scope {
     background-color: transparent;
 }
 .page-spinner-bar{margin-top:-84px;margin-left:-98px;top:50%;left:50%;}
+
+.input-data-button {
+    font-size: 11px;
+    border: none;
+    background: rgb(238, 238, 238);
+}
