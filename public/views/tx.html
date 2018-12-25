@@ -6,6 +6,7 @@
         <table class="col-md-6 table table-hover">
           
           <tr ><td width="25%">hash</td><td>{{tx.hash}}</td></tr>
+          <tr ><td width="25%">Receipt Status</td><td ng-style="{'color': (tx.status=='0x1')? '#3c763d':'#af1822'}">{{(tx.status=='0x1')? 'Success': 'Fail'}}</td></tr>
           <tr ><td width="25%">blockNumber</td>
                 <td><a href="/block/{{tx.blockNumber}}">{{tx.blockNumber}}</a></td>
           </tr>
@@ -15,13 +16,18 @@
           <tr ><td width="25%">from</td>
                 <td><a href="/addr/{{tx.from}}">{{tx.from}}</a></td></tr>
           <tr ng-show="tx.to"><td width="25%">to</td>
-                <td><a href="/addr/{{tx.to}}">{{tx.to}}</a></td></tr>
+              <td><span ng-show="tx.isContract">Contract </span><a href="/addr/{{tx.to}}">{{tx.to}}</a></td></tr>
           <tr ng-show="tx.creates"><td width="25%">creates</td>
-                <td><a href="/addr/{{tx.creates}}">{{tx.creates}}</a></td></tr>                
+                <td><a href="/addr/{{tx.creates}}">{{tx.creates}}</a></td></tr>
+          <tr ng-show="tx.inputJson && (tx.inputJson.name == 'transfer')">
+              <td width="25%">Tokens Transfered</td>
+              <td>To <a href="/addr/{{tx.inputJson.params[0].value}}">{{tx.inputJson.params[0].value}}</a>
+                  for {{tx.tokenNumber}} <a href="/token/{{tx.to}}">{{tx.tokenName || 'Unknown Token'}}</a>
+              </td></tr>
           <tr ><td width="25%">value</td><td>{{tx.value}} {{ settings.symbol }}</td></tr>
-          <tr ><td width="25%">gas Provided</td><td>{{tx.gas | number}}</td></tr>
-          <tr ><td width="25%">gasPrice</td><td>{{tx.gasPrice | number}}</td></tr>
-          <tr ><td width="25%">nonce</td><td>{{tx.nonce}}</td></tr>
+          <tr ><td width="25%">gas Used</td><td>{{tx.gasUsed | number}}</td></tr>
+          <tr ><td width="25%">gasPrice</td><td>{{tx.gasPrice | number}} wei</td></tr>
+          <tr ><td width="25%">nonce & {Index}</td><td>{{tx.nonce}} | { {{tx.transactionIndex}} }</td></tr>
           <tr ><td width="25%">Input Data</td>
               <td><div>
                   <pre class="code" ng-if="tx.inputJson && original==false">Function: {{tx.inputJson.name}}

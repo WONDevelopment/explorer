@@ -84,16 +84,33 @@ exports.data = function(req, res){
       } else {
         var ttx = tx;
         ttx.value = wonUnits.toWon( new BigNumber(tx.value), "wei");
-        //get timestamp from block
-        var block = web3.won.getBlock(tx.blockNumber, function(err, block) {
-          if (!err && block)
-            ttx.timestamp = block.timestamp;
-          if (ttx.input != "0x") {
-              abi.abiInfo(tx.to)
-              ttx.inputJson = abi.decode(tx.input)
-          }
-          res.write(JSON.stringify(ttx));
-          res.end();
+        // get tx status from receipt
+        web3.won.getTransactionReceipt(tx.hash, function(err, txr) {
+            ttx.status = txr.status;
+            ttx.gasUsed = txr.gasUsed;
+            //get timestamp from block
+            var block = web3.won.getBlock(tx.blockNumber, function(err, block) {
+              if (!err && block)
+                ttx.timestamp = block.timestamp;
+
+              if (tx.to && ttx.input != "0x") {
+                  var bytecode = web3.won.getCode(tx.to);
+                  if (bytecode.length > 2) {
+                      ttx.isContract = true;
+                      var curAbi = abi.abiInfo(tx.to);
+                      ttx.inputJson = abi.decode(tx.input);
+                      if (ttx.inputJson) {
+                          var tokenObj = web3.won.contract(curAbi).at(tx.to);
+                          ttx.tokenName = web3.toUtf8(tokenObj.name());
+                          if (ttx.inputJson.name = 'transfer') {
+                              ttx.tokenNumber = wonUnits.toWon(ttx.inputJson.params[1].value, "wei");
+                          }
+                      }
+                  }
+              }
+              res.write(JSON.stringify(ttx));
+              res.end();
+            });
         });
       }
     });

@@ -71,7 +71,7 @@ module.exports = function (req, res) {
         var addr = req.body.user.toLowerCase();
         try {
             var tokens = Token.balanceOf(addr);
-            // tokens = wonUnits.toWon(tokens, 'wei')*100;
+            tokens = wonUnits.toWon(tokens, 'wei');
             res.write(JSON.stringify({"tokens": tokens}));
             res.end();
         } catch (e) {
