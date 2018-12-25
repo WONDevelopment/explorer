@@ -102,7 +102,7 @@ exports.data = function(req, res){
                       if (ttx.inputJson) {
                           var tokenObj = web3.won.contract(curAbi).at(tx.to);
                           ttx.tokenName = web3.toUtf8(tokenObj.name());
-                          if (ttx.inputJson.name = 'transfer') {
+                          if (ttx.inputJson.name == 'transfer') {
                               ttx.tokenNumber = wonUnits.toWon(ttx.inputJson.params[1].value, "wei");
                           }
                       }

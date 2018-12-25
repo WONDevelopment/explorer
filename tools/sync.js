@@ -163,7 +163,7 @@ var writeTransactionsToDB = function(config, blockData, flush) {
       self.bulkOps.push(txData);
 
       // parsing the input data if configured
-      if (txData.input !== "0x") {
+      if (txData.to && txData.input !== "0x") {
         updateTokens.abiInfo(txData.to);
 
         var obj = updateTokens.decodeByAbi(txData.input);
