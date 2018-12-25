@@ -22,9 +22,10 @@
           <tr ng-show="tx.inputJson && (tx.inputJson.name == 'transfer')">
               <td width="25%">Tokens Transfered</td>
               <td>To <a href="/addr/{{tx.inputJson.params[0].value}}">{{tx.inputJson.params[0].value}}</a>
-                  for {{tx.tokenNumber}} <a href="/token/{{tx.to}}">{{tx.tokenName || 'Unknown Token'}}</a>
+                  for {{tx.tokenNumber | number}} <a href="/token/{{tx.to}}">{{tx.tokenName || 'Unknown Token'}}</a>
+                  <br><span style="color: #af1822; font-style: italic;" ng-show="tx.status!='0x1'">Warning! Error encountered during contract execution.</span>
               </td></tr>
-          <tr ><td width="25%">value</td><td>{{tx.value}} {{ settings.symbol }}</td></tr>
+          <tr ><td width="25%">value</td><td>{{tx.value | number}} {{ settings.symbol }}</td></tr>
           <tr ><td width="25%">gas Used</td><td>{{tx.gasUsed | number}}</td></tr>
           <tr ><td width="25%">gasPrice</td><td>{{tx.gasPrice | number}} wei</td></tr>
           <tr ><td width="25%">nonce & {Index}</td><td>{{tx.nonce}} | { {{tx.transactionIndex}} }</td></tr>

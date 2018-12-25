@@ -117,7 +117,7 @@
                           <td class="truncate-addrhash"> <a href="/addr/{{t.from}}">{{t.from}}</a> </td>
                           <td style="white-space: pre-line;word-break: break-all;text-overflow: unset;"> {{t.params}} </td>
                           <!--<td> {{t.amount}} </td>-->
-                          <td> {{t.gas}} </td>
+                          <td> {{t.gas | number}} </td>
                           <td><span class="date"> {{t.timestamp | timeDuration}}</span></td>
                           <td style="text-align:center"><span class="label label-sm label-info"> {{t.type}} </span>
                               <span class="label label-sm label-danger" ng-show="t.error"> {{t.error}}</span></td>
