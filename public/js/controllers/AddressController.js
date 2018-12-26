@@ -1,4 +1,4 @@
-angular.module('BlocksApp').controller('AddressController', function($stateParams, $rootScope, $scope, $http, $location) {
+angular.module('BlocksApp').controller('AddressController', function($stateParams, $rootScope, $scope, $http, $location, $filter) {
     var activeTab = $location.url().split('#');
     if (activeTab.length > 1)
       $scope.activeTab = activeTab[1];
@@ -104,6 +104,9 @@ angular.module('BlocksApp').controller('AddressController', function($stateParam
           { "render": function(data, type, row) {
                         return getDuration(data).toString();
                       }, "targets": [6]},
+          { "render": function(data, type, row) {
+                        return $filter('valuePrecision')(data);
+              }, "targets": [4]}
           ]
       });
     }

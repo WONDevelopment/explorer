@@ -315,6 +315,22 @@ BlocksApp.filter('timeDuration', function() {
         return parseInt(result);
   }
 })
+.filter('valuePrecision', function ($filter) {
+    return function (value) {
+        if (value) {
+            var dotPos = value.indexOf('.');
+            if (dotPos != -1) {
+                var format = $filter('number')(value.substring(0, dotPos)); //(value.length - dotPos - 1);
+                if (format.indexOf('e+') == -1)
+                    return (format + value.substring(dotPos));
+                else
+                    return format;
+            }
+        }
+        return $filter('number')(value);
+    }
+})
+
 /* Init global settings and run the app */
 BlocksApp.run(["$rootScope", "settings", "$state", "setupObj", function($rootScope, settings, $state, setupObj) {
     $rootScope.$state = $state; // state to be accessed from view
