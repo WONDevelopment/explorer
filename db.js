@@ -96,6 +96,9 @@ module.exports.Transaction = mongoose.model('Transaction');
 module.exports.TransferToken = mongoose.model('TransferToken');
 
 
-mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost/blockDB');
+mongoose.Promise = global.Promise;
+mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost/blockDB', {
+    useMongoClient: true
+});
 
 // mongoose.set('debug', true);
