@@ -19,7 +19,7 @@ var TransferToken     = mongoose.model( 'TransferToken' );
 
 const updateTokens = require("./updateTokens");
 
-const syncInterval = process.env.SYNC_INTERVAL || 1000;
+const syncInterval = process.env.SYNC_INTERVAL || 2000;
 
 /**
   //Just listen for latest blocks and sync from the start of the app.
@@ -51,6 +51,12 @@ var listenBlocks = function(config) {
                     });
                 } else {
                     console.log('Error: Web3 connection time out trying to get block ' + latestBlock + ' retrying connection now');
+                    try {
+                        newBlocks.stopWatching();
+                    } catch (e) {
+                        console.error(e);
+                    }
+
                     setTimeout(function () { listenBlocks(config); }, syncInterval);
                 }
             }
