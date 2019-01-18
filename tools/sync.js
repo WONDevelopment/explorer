@@ -31,7 +31,11 @@ var listenBlocks = function(config) {
             if (error) {
                 console.log('Block Filter Callback ' + error);
                 if (error.message.includes('filter not found')) {
-                    newBlocks.stopWatching();
+                    try {
+                        newBlocks.stopWatching();
+                    } catch (e) {
+                        console.error(e);
+                    }
                     setTimeout(function () { listenBlocks(config); }, syncInterval);
                 }
             } else if (latestBlock == null) {
