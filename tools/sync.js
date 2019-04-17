@@ -283,7 +283,7 @@ var runPatcher = function(config, startBlock, endBlock) {
 
   if(typeof startBlock === 'undefined' || typeof endBlock === 'undefined') {
     // get the last saved block
-    var blockFind = Block.find({}, "number").lean(true).sort('-number').limit(1);
+    var blockFind = Block.find({}, "number").lean(true).sort('-number').limit(2);
     blockFind.exec(function (err, docs) {
       if(err || !docs || docs.length < 1) {
         // no blocks found. terminate runPatcher()
@@ -291,9 +291,13 @@ var runPatcher = function(config, startBlock, endBlock) {
         return;
       }
 
-      var lastMissingBlock = docs[0].number + 1;
-
       try {
+          var lastMissingBlock;
+          if (docs.length > 1)
+              lastMissingBlock = docs[1].number + 1;
+          else
+              lastMissingBlock = docs[0].number + 1;
+
           var currentBlock = web3.won.blockNumber;
           runPatcher(config, lastMissingBlock, currentBlock - 1);
       } catch (e) {
