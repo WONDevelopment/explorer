@@ -185,7 +185,7 @@ var getLatest = function(lim, res, callback) {
 /* get blocks from db */
 var sendBlocks = function(lim, res) {
   var blockFind = Block.find({}, "number timestamp miner extraData")
-                      .lean(true).sort('-number').limit(lim);
+                      .lean(true).sort('-number').limit(lim + 2);
   blockFind.exec(function (err, docs) {
     if(!err && docs) {
       var blockNumber = docs[docs.length - 1].number;
@@ -200,6 +200,8 @@ var sendBlocks = function(lim, res) {
           results.forEach(function(txn) {
             txns[txn._id] = txn.count;
           });
+          docs.shift();
+          docs.shift();
           docs.forEach(function(doc) {
             doc.txn = txns[doc.number] || 0;
             doc.minerName = config.settings.signers[doc.miner];

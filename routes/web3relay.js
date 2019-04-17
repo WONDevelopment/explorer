@@ -54,8 +54,8 @@ if (web3.isConnected())
 else
   throw "No connection, please specify web3host in conf.json";
 
-var newBlocks = web3.won.filter("latest");
-var newTxs = web3.won.filter("pending");
+// var newBlocks = web3.won.filter("latest");
+// var newTxs = web3.won.filter("pending");
 
 exports.data = function(req, res){
   console.log(req.body)

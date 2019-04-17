@@ -33,6 +33,7 @@ var listenBlocks = function(config) {
                 if (error.message.includes('filter not found')) {
                     try {
                         newBlocks.stopWatching();
+                        runPatcher(config);
                     } catch (e) {
                         console.error(e);
                     }
