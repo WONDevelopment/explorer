@@ -11,7 +11,7 @@ var Block           = mongoose.model( 'Block' );
 var Transaction     = mongoose.model( 'Transaction' );
 
 var grabBlocks = function(config) {
-    var web3 = new Web3(new Web3.providers.HttpProvider(config.nodeAddr));
+    var web3 = new Web3(new Web3.providers.HttpProvider(process.env.NODE_ADDR || config.nodeAddr));
 
     if('listenOnly' in config && config.listenOnly === true)
         listenBlocks(config, web3);

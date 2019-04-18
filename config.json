@@ -1,5 +1,5 @@
 {
-    "nodeAddr":     "https://bc.1won.com",
+    "nodeAddr":     "http://10.64.15.81:8541",
     "startBlock":   0,
     "quiet":        true,
     "syncAll":      true,
