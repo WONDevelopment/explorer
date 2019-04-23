@@ -95,10 +95,18 @@ module.exports.Contract = mongoose.model('Contract');
 module.exports.Transaction = mongoose.model('Transaction');
 module.exports.TransferToken = mongoose.model('TransferToken');
 
-
+console.log("mongodb initialize...");
 mongoose.Promise = global.Promise;
-mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost/blockDB', {
-    useMongoClient: true
+mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost/blockDB',  {
+    useMongoClient: true,
+    poolSize: 30, // Maintain up to 30 socket connections
+    // If not connected, return errors immediately rather than waiting for reconnect
+    bufferMaxEntries: 0,
+    connectTimeoutMS: 10000, // Give up initial connection after 10 seconds
+    socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
+    reconnectTries: 30000,
+    family: 4, // Use IPv4, skip trying IPv6
+    keepAlive: true
 });
 
 // mongoose.set('debug', true);
