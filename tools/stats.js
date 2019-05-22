@@ -2,18 +2,19 @@
   Tool for calculating block stats
 */
 
+require( '../db.js' );
 var Web3 = require('../lib/won-web3');
 var fs = require('fs');
 var mongoose = require( 'mongoose' );
-var BlockStat = require( '../db.js' ).BlockStat;
+var BlockStat = mongoose.model( 'BlockStat' );
 
 var updateStats = function(nodeAddr, range, interval, rescan) {
     var web3 = new Web3(new Web3.providers.HttpProvider(nodeAddr));
 
-    mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost/blockDB');
-    mongoose.set('debug', true);
+    // mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost/blockDB');
+    // mongoose.set('debug', true);
 
-    var latestBlock = web3.won.blockNumber;
+    var latestBlock = process.env.RECAN_START || web3.won.blockNumber;
 
     interval = Math.abs(parseInt(interval));
     if (!range) {

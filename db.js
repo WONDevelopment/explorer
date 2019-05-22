@@ -100,7 +100,7 @@ mongoose.Promise = global.Promise;
 mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost/blockDB',  {
     useMongoClient: true,
     poolSize: 20, // Maintain up to 20 socket connections
-    reconnectTries: 30000
+    // reconnectTries: 30000
 });
 
 // mongoose.set('debug', true);

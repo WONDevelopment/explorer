@@ -390,20 +390,36 @@ console.log('Connecting ' + (process.env.NODE_ADDR || config.nodeAddr) + '...');
 // Sets address for RPC WEB3 to connect to, usually your node IP address defaults ot localhost
 var web3 = new Web3(new Web3.providers.HttpProvider(process.env.NODE_ADDR || config.nodeAddr));
 
+
+if (process.env.RECAN_MODE !== "true") {
 // patch missing blocks
-if (config.patch === true){
-  console.log('Checking for missing blocks');
-  runPatcher(config);
-}
+    if (config.patch === true) {
+        console.log('Checking for missing blocks');
+        runPatcher(config);
+    }
 
 // first call at start
-updateTokens.webConfigInit();
+    updateTokens.webConfigInit();
 
 // Start listening for latest blocks
-listenBlocks(config);
+    listenBlocks(config);
 
 // Starts full sync when set to true in config
-if (config.syncAll === true){
-  console.log('Starting Full Sync');
-  syncChain(config);
+    if (config.syncAll === true) {
+        console.log('Starting Full Sync');
+        syncChain(config);
+    }
+} else {
+    var startBlock, endBlock;
+    var tmp = process.env.RESCAN_RANGE.split(/:/);
+    if (tmp.length > 1) {
+        startBlock = Math.abs(parseInt(tmp[0]));
+        if (tmp[1]) {
+            endBlock = Math.abs(parseInt(tmp[1]));
+        }
+    }
+
+    if (startBlock > 0 && startBlock < endBlock) {
+        runPatcher(config, startBlock, endBlock);
+    }
 }
