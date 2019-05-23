@@ -1,7 +1,7 @@
 var solc = require('solc');
 
 // var won = require('./web3dummy').won;
-var won = require('./web3relay').won;
+var wonWeb3 = require('../localweb3').wonWeb3;
 
 var Contract = require('./contracts');
 
@@ -31,7 +31,7 @@ var compileSolc = function(req, res) {
   var optimization = (req.body.optimization) ? true : false;
   var optimise = (optimization) ? 1 : 0;
 
-  var bytecode = won.getCode(address);
+  var bytecode = wonWeb3.won.getCode(address);
   if (bytecode.substring(0,2)=="0x")
     bytecode = bytecode.substring(2);
 

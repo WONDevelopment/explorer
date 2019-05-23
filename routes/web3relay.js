@@ -3,12 +3,6 @@
 /*
     Endpoint for client to talk to etc node
 */
-
-var fs = require('fs');
-
-var Web3 = require("../lib/won-web3");
-var web3;
-
 var BigNumber = require('bignumber.js');
 var wonUnits = require(__lib + "wonUnits.js");
 var getSigner = require(__lib + "blockMiner.js");
@@ -19,44 +13,7 @@ var filterTrace = require('./filters').filterTrace;
 
 const abi = require('./abi');
 
-/*Start config for node connection and sync*/
-var config = {};
-var nodeAddr;
-//Look for config.json file if not
-try {
-    var configContents = fs.readFileSync('config.json');
-    config = JSON.parse(configContents);
-
-// set the default NODE address to localhost if it's not provided
-    if (!('nodeAddr' in config) || !(config.nodeAddr)) {
-        config.nodeAddr = 'http://localhost:8545'; // default
-    }
-
-    nodeAddr = process.env.NODE_ADDR || config.nodeAddr ;
-    console.log('CONFIG FOUND: Node:'+ nodeAddr);
-}
-catch (error) {
-    if (error.code === 'ENOENT') {
-        console.log('No config file found. Using default configuration: Node:'+nodeAddr);
-    }
-    else {
-        throw error;
-        process.exit(1);
-    }
-}
-
-//Create Web3 connection
-if (typeof web3 !== "undefined") {
-  web3 = new Web3(web3.currentProvider);
-} else {
-  web3 = new Web3(new Web3.providers.HttpProvider(nodeAddr));
-}
-
-if (web3.isConnected())
-  console.log("Web3 connection established");
-else
-  throw "No connection, please specify web3host in conf.json";
-
+var wonWeb3 = require('../localweb3').wonWeb3;
 // var newBlocks = web3.won.filter("latest");
 // var newTxs = web3.won.filter("pending");
 
@@ -66,11 +23,11 @@ exports.data = function(req, res){
   if ("tx" in req.body) {
     var txHash = req.body.tx.toLowerCase();
 
-    web3.won.getTransaction(txHash, function(err, tx) {
+      wonWeb3.won.getTransaction(txHash, function(err, tx) {
       if(err || !tx) {
         console.error("TxWeb3 error :" + err)
         if (!tx) {
-          web3.won.getBlock(txHash, function(err, block) {
+            wonWeb3.won.getBlock(txHash, function(err, block) {
             if(err || !block) {
               console.error("BlockWeb3 error :" + err)
               res.write(JSON.stringify({"error": true}));
@@ -88,23 +45,23 @@ exports.data = function(req, res){
         var ttx = tx;
         ttx.value = wonUnits.toWon( new BigNumber(tx.value), "wei");
         // get tx status from receipt
-        web3.won.getTransactionReceipt(tx.hash, function(err, txr) {
+          wonWeb3.won.getTransactionReceipt(tx.hash, function(err, txr) {
             ttx.status = txr.status;
             ttx.gasUsed = txr.gasUsed;
             //get timestamp from block
-            var block = web3.won.getBlock(tx.blockNumber, function(err, block) {
+            var block = wonWeb3.won.getBlock(tx.blockNumber, function(err, block) {
               if (!err && block)
                 ttx.timestamp = block.timestamp;
 
               if (tx.to && ttx.input != "0x") {
-                  var bytecode = web3.won.getCode(tx.to);
+                  var bytecode = wonWeb3.won.getCode(tx.to);
                   if (bytecode.length > 2) {
                       ttx.isContract = true;
                       var curAbi = abi.abiInfo(tx.to);
                       ttx.inputJson = abi.decode(tx.input);
                       if (ttx.inputJson) {
-                          var tokenObj = web3.won.contract(curAbi).at(tx.to);
-                          ttx.tokenName = web3.toUtf8(tokenObj.name());
+                          var tokenObj = wonWeb3.won.contract(curAbi).at(tx.to);
+                          ttx.tokenName = wonWeb3.toUtf8(tokenObj.name());
                           if (ttx.inputJson.name == 'transfer') {
                               ttx.tokenNumber = wonUnits.toWon(ttx.inputJson.params[1].value, "wei");
                           }
@@ -121,7 +78,7 @@ exports.data = function(req, res){
   } else if ("tx_trace" in req.body) {
     var txHash = req.body.tx_trace.toLowerCase();
 
-    web3.trace.transaction(txHash, function(err, tx) {
+      wonWeb3.trace.transaction(txHash, function(err, tx) {
       if(err || !tx) {
         console.error("TraceWeb3 error :" + err)
         res.write(JSON.stringify({"error": true}));
@@ -137,7 +94,7 @@ exports.data = function(req, res){
     // start from creation block to speed things up 
     // TODO: store creation block
     var filter = {"fromBlock":"0x1d4c00", "toAddress":[addr]};
-    web3.trace.filter(filter, function(err, tx) {
+      wonWeb3.trace.filter(filter, function(err, tx) {
       if(err || !tx) {
         console.error("TraceWeb3 error :" + err)
         res.write(JSON.stringify({"error": true}));
@@ -154,7 +111,7 @@ exports.data = function(req, res){
 
     if (options.indexOf("balance") > -1) {
       try {
-        addrData["balance"] = web3.won.getBalance(addr);
+        addrData["balance"] = wonWeb3.won.getBalance(addr);
         addrData["balance"] = wonUnits.toWon(addrData["balance"], 'wei');
       } catch(err) {
         console.error("AddrWeb3 error :" + err);
@@ -163,7 +120,7 @@ exports.data = function(req, res){
     }
     if (options.indexOf("count") > -1) {
       try {
-         addrData["count"] = web3.won.getTransactionCount(addr);
+         addrData["count"] = wonWeb3.won.getTransactionCount(addr);
       } catch (err) {
         console.error("AddrWeb3 error :" + err);
         addrData = {"error": true};
@@ -171,7 +128,7 @@ exports.data = function(req, res){
     }
     if (options.indexOf("bytecode") > -1) {
       try {
-         addrData["bytecode"] = web3.won.getCode(addr);
+         addrData["bytecode"] = wonWeb3.won.getCode(addr);
          if (addrData["bytecode"].length > 2) 
             addrData["isContract"] = true;
          else
@@ -194,7 +151,7 @@ exports.data = function(req, res){
         blockNumOrHash = parseInt(req.body.block);
     }
 
-    web3.won.getBlock(blockNumOrHash, function(err, block) {
+      wonWeb3.won.getBlock(blockNumOrHash, function(err, block) {
       if(err || !block) {
         console.error("BlockWeb3 error :" + err)
         res.write(JSON.stringify({"error": true}));
@@ -230,7 +187,7 @@ exports.data = function(req, res){
       return;
     }
 
-    web3.won.getUncle(blockNumOrHash, uncleIdx, function(err, uncle) {
+      wonWeb3.won.getUncle(blockNumOrHash, uncleIdx, function(err, uncle) {
       if(err || !uncle) {
         console.error("UncleWeb3 error :" + err)
         res.write(JSON.stringify({"error": true}));
@@ -242,7 +199,7 @@ exports.data = function(req, res){
 
   } else if ("action" in req.body) {
     if (req.body.action == 'hashrate') {
-      web3.won.getBlock('latest', function(err, latest) {
+        wonWeb3.won.getBlock('latest', function(err, latest) {
         if(err || !latest) {
           console.error("StatsWeb3 error :" + err);
           res.write(JSON.stringify({"error": true}));
@@ -253,7 +210,7 @@ exports.data = function(req, res){
           if(checknum < 0)
             checknum = 0;
           var nblock = latest.number - checknum;
-          web3.won.getBlock(checknum, function(err, block) {
+            wonWeb3.won.getBlock(checknum, function(err, block) {
             if(err || !block) {
               console.error("StatsWeb3 error :" + err);
               res.write(JSON.stringify({"blockHeight": latest.number, "difficulty": latest.difficulty, "blockTime": 0, "hashrate": 0 }));
@@ -277,5 +234,3 @@ exports.data = function(req, res){
   }
 
 };
-
-exports.web3 = web3;

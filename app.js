@@ -1,25 +1,14 @@
 #!/usr/bin/env node
 
 require( './db' );
+require('./localweb3');
 
 var express = require('express');
 var path = require('path');
 var favicon = require('serve-favicon');
 var logger = require('morgan');
 var bodyParser = require('body-parser');
-
-var config = {};
-try {
-  config = require('./config.json');
-} catch(e) {
-  if (e.code == 'MODULE_NOT_FOUND') {
-    console.log('No config file found. Using default configuration... (tools/config.json)');
-    config = require('./tools/config.json');
-  } else {
-    throw e;
-    process.exit(1);
-  }
-}
+var compression = require('compression');
 
 var app = express();
 app.set('port', process.env.PORT || 8000);
@@ -33,13 +22,14 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(compression());
 
 // app libraries
 global.__lib = __dirname + '/lib/';
 
 
 // client
-
+var config = require('./localweb3').config;
 app.get('/', function(req, res) {
   res.render('index', config);
 });
