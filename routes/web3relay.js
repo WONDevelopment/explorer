@@ -21,9 +21,10 @@ exports.data = function(req, res){
   console.log(req.body)
 
   if ("tx" in req.body) {
-    var txHash = req.body.tx.toLowerCase();
-
+      console.info('Trys time:' + new Date().getTime()%1e6);
+      var txHash = req.body.tx.toLowerCase();
       wonWeb3.won.getTransaction(txHash, function(err, tx) {
+       console.info('Try1 time:' + new Date().getTime()%1e6);
       if(err || !tx) {
         console.error("TxWeb3 error :" + err)
         if (!tx) {
@@ -46,21 +47,25 @@ exports.data = function(req, res){
         ttx.value = wonUnits.toWon( new BigNumber(tx.value), "wei");
         // get tx status from receipt
           wonWeb3.won.getTransactionReceipt(tx.hash, function(err, txr) {
+              console.info('Try2 time:' + new Date().getTime()%1e6);
             ttx.status = txr.status;
             ttx.gasUsed = txr.gasUsed;
             //get timestamp from block
             var block = wonWeb3.won.getBlock(tx.blockNumber, function(err, block) {
+                console.info('Try3 time:' + new Date().getTime()%1e6);
               if (!err && block)
                 ttx.timestamp = block.timestamp;
 
               if (tx.to && ttx.input != "0x") {
                   var bytecode = wonWeb3.won.getCode(tx.to);
+                  console.info('Try4 time:' + new Date().getTime()%1e6);
                   if (bytecode.length > 2) {
                       ttx.isContract = true;
                       var curAbi = abi.abiInfo(tx.to);
                       ttx.inputJson = abi.decode(tx.input);
                       if (ttx.inputJson) {
                           var tokenObj = wonWeb3.won.contract(curAbi).at(tx.to);
+                          console.info('Try5 time:' + new Date().getTime()%1e6);
                           ttx.tokenName = wonWeb3.toUtf8(tokenObj.name());
                           if (ttx.inputJson.name == 'transfer') {
                               ttx.tokenNumber = wonUnits.toWon(ttx.inputJson.params[1].value, "wei");
@@ -70,6 +75,7 @@ exports.data = function(req, res){
               }
               res.write(JSON.stringify(ttx));
               res.end();
+              console.info('Trye time:' + new Date().getTime()%1e6);
             });
         });
       }
