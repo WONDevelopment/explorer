@@ -4,7 +4,7 @@
     Endpoint for client interface with ERC-20 tokens
 */
 
-var web3 = require('./web3relay').web3;
+var wonWeb3 = require('../localweb3').wonWeb3;
 
 var async = require('async');
 
@@ -23,13 +23,13 @@ module.exports = function (req, res) {
     var contractAddress = req.body.address;
     var curAbi = abi.abiInfo(contractAddress);
 
-    var Token = web3.won.contract(curAbi).at(contractAddress);
+    var Token = wonWeb3.won.contract(curAbi).at(contractAddress);
 
     if (!("action" in req.body))
         res.status(400).send();
     else if (req.body.action === "info") {
         try {
-            var actualBalance = web3.won.getBalance(contractAddress);
+            var actualBalance = wonWeb3.won.getBalance(contractAddress);
             actualBalance = wonUnits.toWon(actualBalance, 'wei');
             var totalSupply = Token.totalSupply();
             // totalSupply = wonUnits.toWon(totalSupply, 'wei')*100;
@@ -38,21 +38,21 @@ module.exports = function (req, res) {
 
             var name = Token.name();
             if (name.length > 64) {
-                name = web3.toUtf8(name);
+                name = wonWeb3.toUtf8(name);
             }
             var symbol = Token.symbol();
             if (symbol.length > 64) {
-                symbol = web3.toUtf8(symbol);
+                symbol = wonWeb3.toUtf8(symbol);
             }
 
-            var count = web3.won.getTransactionCount(contractAddress);
+            var count = wonWeb3.won.getTransactionCount(contractAddress);
             var tokenData = {
                 "balance": actualBalance,
                 "total_supply": totalSupply,
                 "count": count,
                 "name": name,
                 "symbol": symbol,
-                "bytecode": web3.won.getCode(contractAddress),
+                "bytecode": wonWeb3.won.getCode(contractAddress),
                 "creator": owner
             }
 
