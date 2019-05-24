@@ -6,7 +6,9 @@
   "repository": "https://github.com/WONDevelopment/explorer",
   "license": "MIT",
   "scripts": {
-    "start": "node app.js",
+    "start": "concurrently \"node tools/sync.js \" \"node app.js\" ",
+    "start:app": "node app.js",
+    "start:sync": "node tools/sync.js ",
     "pretest": "copyfiles app.js app/  ",
     "test": "./node_modules/.bin/mocha --reporter spec  ",
     "dev:mongoUp": "pgrep mongod || mongod --dbpath data --fork --logpath /dev/null",
