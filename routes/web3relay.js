@@ -14,6 +14,7 @@ var filterTrace = require('./filters').filterTrace;
 const abi = require('./abi');
 
 var wonWeb3 = require('../localweb3').wonWeb3;
+var config = require('../localweb3').config;
 // var newBlocks = web3.won.filter("latest");
 // var newTxs = web3.won.filter("pending");
 
