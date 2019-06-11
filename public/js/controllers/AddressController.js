@@ -8,6 +8,12 @@ angular.module('BlocksApp').controller('AddressController', function($stateParam
     $scope.addr = {"balance": 0, "count": 0, "mined": 0};
     $scope.settings = $rootScope.setup;
 
+    $scope.hiddenZeroTxns = localStorage.getItem("hiddenZeroTxns")==="1";
+    $scope.hiddenZeroChange = function () {
+        localStorage.setItem("hiddenZeroTxns", $scope.hiddenZeroTxns?"1":"0");
+        window.location.reload();
+    };
+
     //fetch web3 stuff
     $http({
       method: 'POST',
@@ -16,6 +22,7 @@ angular.module('BlocksApp').controller('AddressController', function($stateParam
     }).then(function(resp) {
       $scope.addr = $.extend($scope.addr, resp.data);
       fetchTxs();
+      fetchTokenTxs();
       if (resp.data.isContract) {
         $rootScope.$state.current.data["pageTitle"] = "Contract Address";
         // fetchInternalTxs();
@@ -32,15 +39,21 @@ angular.module('BlocksApp').controller('AddressController', function($stateParam
       $scope.addr.ethfiat = resp.data.balance;
     });
 
+    $http.post('/addr_count', {addr: $scope.addrHash}).then(function (resp) {
+        $scope.addr.count = resp.data.recordsTotal;
+        $scope.addr.mined = parseInt(resp.data.mined);
+    });
+
     //fetch transactions
     var fetchTxs = function() {
-      var table = $("#table_txs").DataTable({
+      $("#table_txs").DataTable({
         processing: true,
         serverSide: true,
         paging: true,
         ajax: function(data, callback, settings) {
           data.addr = $scope.addrHash;
           data.count = $scope.addr.count;
+          data.hiddenZero = $scope.hiddenZeroTxns;
           $http.post('/addr', data).then(function(resp) {
             // save data
             $scope.data = resp.data;
@@ -48,27 +61,6 @@ angular.module('BlocksApp').controller('AddressController', function($stateParam
             resp.data.recordsTotal = $scope.recordsTotal ? $scope.recordsTotal : resp.data.recordsTotal;
             resp.data.recordsFiltered = $scope.recordsFiltered ? $scope.recordsFiltered : resp.data.recordsFiltered;
             callback(resp.data);
-          });
-
-          // get mined, recordsTotal counter only once.
-          if (data.draw > 1)
-            return;
-
-          $http.post('/addr_count', data).then(function(resp) {
-            $scope.addr.count = resp.data.recordsTotal;
-            $scope.addr.mined = parseInt(resp.data.mined);
-
-            data.count = resp.data.recordsTotal;
-
-            // set $scope.records*
-            $scope.recordsTotal = resp.data.recordsTotal;
-            $scope.recordsFiltered = resp.data.recordsFiltered;
-            // draw table if $scope.data available.
-            if ($scope.data) {
-              $scope.data.recordsTotal = resp.data.recordsTotal;
-              $scope.data.recordsFiltered = resp.data.recordsFiltered;
-              callback($scope.data);
-            }
           });
         },
         "lengthMenu": [
@@ -119,6 +111,62 @@ angular.module('BlocksApp').controller('AddressController', function($stateParam
       }).then(function(resp) {
         $scope.internal_transactions = resp.data;
       });      
+    }
+
+    var fetchTokenTxs = function() {
+        $("#table_internal_txs").DataTable({
+            processing: true,
+            serverSide: true,
+            paging: true,
+            ajax: function(data, callback, settings) {
+                data.addr = $scope.addrHash;
+                data.count = $scope.addr.count;
+                data.txType = "contract";
+                $http.post('/addr', data).then(function(resp) {
+                    $scope.data = resp.data;
+                    resp.data.recordsTotal = $scope.recordsTotal ? $scope.recordsTotal : resp.data.recordsTotal;
+                    resp.data.recordsFiltered = $scope.recordsFiltered ? $scope.recordsFiltered : resp.data.recordsFiltered;
+                    callback(resp.data);
+                });
+            },
+            "lengthMenu": [
+                [10, 20, 50, 100, 150, 500],
+                [10, 20, 50, 100, 150, 500] // change per page values here
+            ],
+            "pageLength": 20,
+            "order": [
+                [6, "desc"]
+            ],
+            "language": {
+                "lengthMenu": "_MENU_ transactions",
+                "zeroRecords": "No transactions found",
+                "infoEmpty": ":(",
+                "infoFiltered": "(filtered from _MAX_ total txs)"
+            },
+            "columnDefs": [
+                { "targets": [ 5 ], "visible": false, "searchable": false },
+                {"type": "date", "targets": 6},
+                {"orderable": false, "targets": [0,2,3,4]},
+                { "render": function(data, type, row) {
+                        if (data != $scope.addrHash)
+                            return '<a href="/addr/'+data+'">'+data+'</a>'
+                        else
+                            return data
+                    }, "targets": [2,3]},
+                { "render": function(data, type, row) {
+                        return '<a href="/block/'+data+'">'+data+'</a>'
+                    }, "targets": [1]},
+                { "render": function(data, type, row) {
+                        return '<a href="/tx/'+data+'">'+data+'</a>'
+                    }, "targets": [0]},
+                { "render": function(data, type, row) {
+                        return getDuration(data).toString();
+                    }, "targets": [6]},
+                { "render": function(data, type, row) {
+                        return $filter('valuePrecision')(data);
+                    }, "targets": [4]}
+            ]
+        });
     }
     
 })

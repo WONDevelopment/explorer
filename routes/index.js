@@ -28,6 +28,7 @@ module.exports = function(app){
   */
   app.post('/addr', getAddr);
   app.post('/addr_count', getAddrCounter);
+  // app.post('/addr_contract', getAddrContract);
   app.post('/tx', getTx);
   app.post('/block', getBlock);
   app.post('/data', getData);
@@ -51,28 +52,43 @@ var getAddr = function(req, res){
 
   var data = { draw: parseInt(req.body.draw), recordsFiltered: count, recordsTotal: count, mined: 0 };
 
-  var addrFind = Transaction.find( { $or: [{"to": addr}, {"from": addr}] })  
-
-  var sortOrder = '-blockNumber';
-  if (req.body.order && req.body.order[0] && req.body.order[0].column) {
-    // date or blockNumber column
-    if (req.body.order[0].column == 1 || req.body.order[0].column == 6) {
-      if (req.body.order[0].dir == 'asc') {
-        sortOrder = 'blockNumber';
-      }
-    }
+  var queryObj;
+  if (req.body.txType === "contract") {
+    queryObj = {$and: [{$or: [{"to": addr}, {"from": addr}]}, {"input": {$ne: '0x'}}]};
+  } else if (req.body.hiddenZero) {
+    queryObj = {$and: [{$or: [{"to": addr}, {"from": addr}]}, {"value": {$ne: '0'}}]};
+  } else {
+    queryObj = { $or: [{"to": addr}, {"from": addr}] };
   }
 
-  addrFind.lean(true).sort(sortOrder).skip(start).limit(limit)
-    .exec("find", function (err, docs) {
-      if (docs)
-        data.data = filters.filterTX(docs, addr);
-      else
-        data.data = [];
-      res.write(JSON.stringify(data));
-      res.end();
-    });
+  Transaction.count(queryObj, function(err, count) {
+    if (!err && count) {
+        // fix recordsTotal
+        data.recordsTotal = count;
+        data.recordsFiltered = count;
+    }
 
+    var addrFind = Transaction.find(queryObj);
+    var sortOrder = '-blockNumber';
+    if (req.body.order && req.body.order[0] && req.body.order[0].column) {
+        // date or blockNumber column
+        if (req.body.order[0].column === 1 || req.body.order[0].column === 6) {
+            if (req.body.order[0].dir === 'asc') {
+                sortOrder = 'blockNumber';
+            }
+        }
+    }
+
+    addrFind.lean(true).sort(sortOrder).skip(start).limit(limit)
+        .exec("find", function (err, docs) {
+            if (docs)
+                data.data = filters.filterTX(docs, addr);
+            else
+                data.data = [];
+            res.write(JSON.stringify(data));
+            res.end();
+        });
+  });
 };
 var getAddrCounter = function(req, res) {
   var addr = req.body.addr.toLowerCase();
