@@ -62,7 +62,7 @@ var getAddr = function(req, res){
   }
 
   Transaction.count(queryObj, function(err, count) {
-    if (!err && count) {
+    if (!err) {
         // fix recordsTotal
         data.recordsTotal = count;
         data.recordsFiltered = count;
